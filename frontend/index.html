@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM 知识库</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤖 LLM 个人知识库</h1>
+            <p class="subtitle">数据摄入 → Wiki 编译 → 智能问答</p>
+        </header>
+
+        <main>
+            <!-- 标签页 -->
+            <div class="tabs">
+                <button class="tab active" data-tab="ingest">📥 数据摄入</button>
+                <button class="tab" data-tab="compile">📚 编译Wiki</button>
+                <button class="tab" data-tab="qa">❓ 智能问答</button>
+                <button class="tab" data-tab="wiki">📁 Wiki浏览</button>
+            </div>
+
+            <!-- 数据摄入面板 -->
+            <div class="panel active" id="panel-ingest">
+                <h2>数据摄入</h2>
+                <textarea id="raw-content" placeholder="粘贴文章内容、网页文本或其他原始数据..."></textarea>
+                <input type="text" id="source-name" placeholder="来源名称（如：文章标题）">
+                <button onclick="ingestData()">摄入数据</button>
+                <div id="ingest-status" class="status"></div>
+            </div>
+
+            <!-- 编译Wiki面板 -->
+            <div class="panel" id="panel-compile">
+                <h2>编译 Wiki</h2>
+                <p>将 raw/ 目录下的原始数据编译成结构化 Wiki</p>
+                <button onclick="compileWiki()">🚀 开始编译</button>
+                <div id="compile-output" class="output"></div>
+            </div>
+
+            <!-- 问答面板 -->
+            <div class="panel" id="panel-qa">
+                <h2>智能问答</h2>
+                <div class="chat-container">
+                    <div id="chat-messages"></div>
+                    <div class="chat-input">
+                        <input type="text" id="question-input" placeholder="输入你的问题..." onkeypress="handleKeyPress(event)">
+                        <button onclick="askQuestion()">提问</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wiki浏览面板 -->
+            <div class="panel" id="panel-wiki">
+                <h2>Wiki 内容</h2>
+                <div class="toolbar">
+                    <input type="text" id="search-input" placeholder="搜索 Wiki...">
+                    <button onclick="searchWiki()">搜索</button>
+                    <button onclick="refreshWiki()">刷新</button>
+                </div>
+                <div id="wiki-content" class="markdown-body"></div>
+            </div>
+        </main>
+
+        <footer>
+            <p>Powered by MiniMax + FastAPI</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
