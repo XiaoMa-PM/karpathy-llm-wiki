@@ -1,8 +1,10 @@
-# LLM Wiki - 个人知识库系统
+# karpathy-llm-wiki
 
-基于 LLM 的个人知识库系统，支持数据摄入、Wiki 编译和智能问答。灵感来源于 [LLM Knowledge Bases](https://simonwillison.net/2025/Nov/17/llm-knowledge-bases/) 教程。
+复现 Andrej Karpathy 的 LLM Wiki 知识库思路，使用 FastAPI + 原生 HTML/JS 构建后端 API 和中文前端界面。
 
 ## 核心思路
+
+Karpathy 大神提出的 LLM Wiki 工作流：
 
 ```
 原始数据 (文章/笔记/文档)
@@ -24,14 +26,14 @@ raw/ 目录
 
 ## 技术栈
 
-- **后端**: FastAPI + OpenAI SDK（兼容任何 OpenAI 格式的 LLM）
-- **前端**: 原生 HTML/CSS/JS（零依赖，响应式设计）
-- **LLM**: MiniMax M2.7（可轻松切换为 OpenAI / Claude / 本地模型）
+- **后端**: FastAPI + OpenAI SDK（兼容任何 OpenAI 兼容格式的 LLM）
+- **前端**: 原生 HTML/CSS/JS（零依赖，中文界面，响应式设计）
+- **LLM**: MiniMax M2.7（可切换为 OpenAI / Claude / Ollama）
 
 ## 项目结构
 
 ```
-LLM_WIKI_DATAD/
+karpathy-llm-wiki/
 ├── backend/
 │   ├── main.py           # FastAPI 主入口
 │   ├── api.py            # API 路由
@@ -43,9 +45,8 @@ LLM_WIKI_DATAD/
 │   ├── style.css         # 样式
 │   └── app.js            # 前端逻辑
 ├── data/
-│   ├── raw/              # 原始数据（摄入的内容）
-│   └── wiki/             # 编译后的 Wiki 文件
-├── .gitignore
+│   ├── raw/              # 原始数据
+│   └── wiki/             # 编译后的 Wiki
 └── README.md
 ```
 
@@ -54,8 +55,8 @@ LLM_WIKI_DATAD/
 ### 1. 克隆项目
 
 ```bash
-git clone <your-repo-url>
-cd LLM_WIKI_DATAD
+git clone https://github.com/XiaoMa-PM/karpathy-llm-wiki.git
+cd karpathy-llm-wiki
 ```
 
 ### 2. 安装依赖
@@ -67,31 +68,31 @@ pip install -r requirements.txt
 
 ### 3. 配置 API Key
 
-支持任何 OpenAI 兼容格式的 LLM。复制配置示例文件并填入你的 Key：
+复制配置示例文件并填入你的 Key：
 
 ```bash
 cd backend
 copy .env.example .env
-# 然后编辑 .env 填入真实 API Key
+# 编辑 .env 填入真实 API Key
 ```
 
-或直接设置环境变量：
+支持的 LLM：
 
 ```bash
 # MiniMax
-set MINIMAX_API_KEY=your-minimax-key
-set MINIMAX_BASE_URL=https://api.minimax.chat/v1
-set MINIMAX_MODEL=MiniMax-M2.7
+MINIMAX_API_KEY=your-key
+MINIMAX_BASE_URL=https://api.minimax.chat/v1
+MINIMAX_MODEL=MiniMax-M2.7
 
 # OpenAI
-set OPENAI_API_KEY=your-openai-key
-set OPENAI_BASE_URL=https://api.openai.com/v1
-set OPENAI_MODEL=gpt-4o
+OPENAI_API_KEY=your-key
+OPENAI_BASE_URL=https://api.openai.com/v1
+OPENAI_MODEL=gpt-4o
 
 # 本地 Ollama
-set OPENAI_API_KEY=not-needed
-set OPENAI_BASE_URL=http://localhost:11434/v1
-set OPENAI_MODEL=llama3
+OPENAI_API_KEY=not-needed
+OPENAI_BASE_URL=http://localhost:11434/v1
+OPENAI_MODEL=llama3
 ```
 
 ### 4. 启动服务
@@ -108,9 +109,9 @@ python -m uvicorn main:app --host 0.0.0.0 --port 8000
 ## 使用流程
 
 1. **摄入数据** - 在"数据摄入"页面粘贴文章内容，填入来源名称，提交
-2. **编译 Wiki** - 点击"编译 Wiki"，LLM 会分析所有原始数据，生成结构化 Wiki
-3. **开始问答** - 在"智能问答"页面提问，LLM 会基于 Wiki 内容回答
-4. **浏览 Wiki** - 在"Wiki 浏览"页面查看所有已编译的文档和搜索内容
+2. **编译 Wiki** - 点击"编译 Wiki"，LLM 分析所有原始数据，生成结构化 Wiki
+3. **开始问答** - 在"智能问答"页面提问，LLM 基于 Wiki 内容回答
+4. **浏览 Wiki** - 在"Wiki 浏览"页面查看和搜索已编译的文档
 
 ## API 接口
 
@@ -121,27 +122,6 @@ python -m uvicorn main:app --host 0.0.0.0 --port 8000
 | `POST` | `/api/chat` | 智能问答 |
 | `GET` | `/api/wiki/list` | 列出 Wiki 文件 |
 | `GET` | `/api/wiki/search` | 搜索 Wiki 内容 |
-
-## 自定义配置
-
-编辑 `backend/.env` 或 `backend/config.py` 修改：
-
-```python
-# 数据目录
-RAW_DIR = DATA_DIR / "raw"
-WIKI_DIR = DATA_DIR / "wiki"
-
-# LLM 参数
-MINIMAX_MODEL = "MiniMax-M2.7"
-MINIMAX_TEMPERATURE = 0.7
-```
-
-## 扩展思路
-
-- 接入 Obsidian 作为前端 IDE（配合 Marp 渲染幻灯片）
-- 添加文件监听，自动摄入特定目录的新文件
-- 接入 Web Searcher 实现联网补全缺失数据
-- 合成数据生成 + 微调，让 LLM"记住"知识
 
 ## License
 
