@@ -26,6 +26,17 @@
             <!-- 数据摄入面板 -->
             <div class="panel active" id="panel-ingest">
                 <h2>数据摄入</h2>
+
+                <div class="url-ingest">
+                    <h3>🔗 URL 摄入（支持小红书）</h3>
+                    <input type="text" id="url-input" placeholder="粘贴小红书链接...">
+                    <button onclick="ingestUrl()">抓取并摄入</button>
+                    <div id="url-status" class="status"></div>
+                </div>
+
+                <hr>
+
+                <h3>📝 文本摄入</h3>
                 <textarea id="raw-content" placeholder="粘贴文章内容、网页文本或其他原始数据..."></textarea>
                 <input type="text" id="source-name" placeholder="来源名称（如：文章标题）">
                 <button onclick="ingestData()">摄入数据</button>

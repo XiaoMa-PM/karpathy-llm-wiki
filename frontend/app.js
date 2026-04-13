@@ -10,6 +10,41 @@ document.querySelectorAll('.tab').forEach(tab => {
     });
 });
 
+// URL 摄入（小红书等）
+async function ingestUrl() {
+    const url = document.getElementById('url-input').value.trim();
+    const statusDiv = document.getElementById('url-status');
+
+    if (!url) {
+        statusDiv.className = 'status error';
+        statusDiv.textContent = '请输入链接';
+        return;
+    }
+
+    statusDiv.className = 'status';
+    statusDiv.innerHTML = '<div class="spinner"></div>正在抓取内容...\n（可能需要10-30秒）';
+
+    try {
+        const response = await fetch(`${API_BASE}/ingest/url`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url })
+        });
+        const data = await response.json();
+        if (response.ok && data.success) {
+            statusDiv.className = 'status success';
+            statusDiv.textContent = `✓ ${data.message}`;
+            document.getElementById('url-input').value = '';
+        } else {
+            statusDiv.className = 'status error';
+            statusDiv.textContent = `✗ ${data.message || '抓取失败'}`;
+        }
+    } catch (error) {
+        statusDiv.className = 'status error';
+        statusDiv.textContent = `✗ ${error.message}`;
+    }
+}
+
 // 数据摄入
 async function ingestData() {
     const content = document.getElementById('raw-content').value;
