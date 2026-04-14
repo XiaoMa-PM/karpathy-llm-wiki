@@ -69,10 +69,10 @@ async def fetch_xiaohongshu(url: str) -> dict:
         page = await context.new_page()
 
         try:
-            await page.goto(url, timeout=30000, wait_until="networkidle")
+            await page.goto(url, timeout=60000, wait_until="domcontentloaded")
 
             # 等待内容加载
-            await page.wait_for_selector("meta[name='description']", timeout=10000)
+            await page.wait_for_timeout(5000)
 
             title = await page.title() or ""
             description = ""
