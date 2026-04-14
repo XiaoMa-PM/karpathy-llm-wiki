@@ -42,13 +42,11 @@ async def ingest_url(req: IngestUrlRequest):
     """从 URL 摄入内容（支持多平台）"""
     url = req.url.strip()
 
-    # 抓取内容
     result = await fetch_content(url)
 
     if "error" in result:
         return {"success": False, "message": result["error"]}
 
-    # 抓取成功，摄入到 wiki
     engine = get_engine()
     content = f"# {result['title']}\n\n**作者**: {result.get('author', '未知')}\n**来源**: {url}\n\n---\n\n{result['content']}"
     ingest_result = engine.ingest(content, result['title'])
@@ -91,3 +89,39 @@ async def search_wiki(q: str):
     engine = get_engine()
     results = engine.search_wiki(q)
     return {"results": results}
+
+
+# ============= Raw 数据维护 =============
+
+@router.get("/raw/list")
+async def list_raw():
+    """列出所有原始数据文件"""
+    engine = get_engine()
+    files = engine.list_raw()
+    return {"files": files}
+
+
+@router.delete("/raw/{filename}")
+async def delete_raw(filename: str):
+    """删除指定原始数据文件"""
+    engine = get_engine()
+    result = engine.delete_raw(filename)
+    if result:
+        return {"success": True, "message": f"已删除: {filename}"}
+    return {"success": False, "message": f"文件不存在: {filename}"}
+
+
+@router.delete("/raw")
+async def delete_all_raw():
+    """清空所有原始数据"""
+    engine = get_engine()
+    count = engine.delete_all_raw()
+    return {"success": True, "message": f"已清空 {count} 个文件"}
+
+
+@router.get("/raw/stats")
+async def raw_stats():
+    """获取原始数据统计"""
+    engine = get_engine()
+    stats = engine.get_raw_stats()
+    return stats

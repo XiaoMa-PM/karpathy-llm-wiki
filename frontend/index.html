@@ -21,6 +21,7 @@
                 <button class="tab" data-tab="compile">📚 编译Wiki</button>
                 <button class="tab" data-tab="qa">❓ 智能问答</button>
                 <button class="tab" data-tab="wiki">📁 Wiki浏览</button>
+                <button class="tab" data-tab="maintenance">🔧 数据维护</button>
             </div>
 
             <!-- 数据摄入面板 -->
@@ -72,6 +73,20 @@
                     <button onclick="refreshWiki()">刷新</button>
                 </div>
                 <div id="wiki-content" class="markdown-body"></div>
+            </div>
+
+            <!-- 数据维护面板 -->
+            <div class="panel" id="panel-maintenance">
+                <h2>🔧 数据维护</h2>
+                <div class="stats-bar" id="stats-bar">
+                    <span class="stat-item">📊 加载中...</span>
+                </div>
+                <div class="toolbar">
+                    <button onclick="loadRawList()">🔄 刷新列表</button>
+                    <button onclick="deleteSelectedRaw()" class="danger">🗑️ 删除选中</button>
+                    <button onclick="clearAllRaw()" class="danger">⚠️ 清空全部</button>
+                </div>
+                <div id="raw-list" class="raw-list"></div>
             </div>
         </main>
 

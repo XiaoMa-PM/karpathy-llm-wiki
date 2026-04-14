@@ -207,5 +207,124 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+// ============= 数据维护 =============
+
+async function loadRawStats() {
+    try {
+        const response = await fetch(`${API_BASE}/raw/stats`);
+        const data = await response.json();
+        if (response.ok) {
+            const sizeMB = (data.total_size / 1024).toFixed(1);
+            document.getElementById('stats-bar').innerHTML = `
+                <span class="stat-item">📄 共 ${data.total_files} 个文件</span>
+                <span class="stat-item">💾 ${sizeMB} KB</span>
+                <span class="stat-item">小红书: ${data.platforms.xiaohongshu || 0}</span>
+                <span class="stat-item">知乎: ${data.platforms.zhihu || 0}</span>
+                <span class="stat-item">微博: ${data.platforms.weibo || 0}</span>
+                <span class="stat-item">B站: ${data.platforms.bilibili || 0}</span>
+            `;
+        }
+    } catch (error) {
+        console.error('Stats error:', error);
+    }
+}
+
+async function loadRawList() {
+    const listDiv = document.getElementById('raw-list');
+    listDiv.innerHTML = '<div class="spinner"></div>加载中...';
+
+    try {
+        const response = await fetch(`${API_BASE}/raw/list`);
+        const data = await response.json();
+        if (response.ok) {
+            if (data.files.length === 0) {
+                listDiv.innerHTML = '<p>暂无数据</p>';
+                return;
+            }
+            let html = '<table class="raw-table"><thead><tr><th width="40"><input type="checkbox" id="select-all" onchange="toggleSelectAll()"></th><th>标题</th><th width="100">大小</th><th width="100">操作</th></tr></thead><tbody>';
+            data.files.forEach(f => {
+                const sizeKB = (f.size / 1024).toFixed(1);
+                const preview = escapeHtml(f.preview).substring(0, 80);
+                html += `<tr>
+                    <td><input type="checkbox" class="raw-checkbox" value="${escapeHtml(f.filename)}"></td>
+                    <td>
+                        <strong>${escapeHtml(f.title)}</strong><br>
+                        <small style="color:#888">${preview}...</small>
+                    </td>
+                    <td>${sizeKB} KB</td>
+                    <td>
+                        <button onclick="deleteRaw('${escapeHtml(f.filename)}')" class="small-btn">删除</button>
+                    </td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            listDiv.innerHTML = html;
+        }
+    } catch (error) {
+        listDiv.innerHTML = `<p style="color:red">✗ ${error.message}</p>`;
+    }
+}
+
+function toggleSelectAll() {
+    const checkboxes = document.querySelectorAll('.raw-checkbox');
+    const selectAll = document.getElementById('select-all');
+    checkboxes.forEach(cb => cb.checked = selectAll.checked);
+}
+
+async function deleteRaw(filename) {
+    if (!confirm(`确定要删除 "${filename}" 吗？`)) return;
+    try {
+        const response = await fetch(`${API_BASE}/raw/${encodeURIComponent(filename)}`, { method: 'DELETE' });
+        const data = await response.json();
+        if (response.ok && data.success) {
+            alert(data.message);
+            loadRawList();
+            loadRawStats();
+        } else {
+            alert('删除失败: ' + (data.message || '未知错误'));
+        }
+    } catch (error) {
+        alert('删除失败: ' + error.message);
+    }
+}
+
+async function deleteSelectedRaw() {
+    const checkboxes = document.querySelectorAll('.raw-checkbox:checked');
+    if (checkboxes.length === 0) {
+        alert('请先选择要删除的文件');
+        return;
+    }
+    if (!confirm(`确定要删除选中的 ${checkboxes.length} 个文件吗？`)) return;
+
+    let deleted = 0;
+    for (const cb of checkboxes) {
+        try {
+            await fetch(`${API_BASE}/raw/${encodeURIComponent(cb.value)}`, { method: 'DELETE' });
+            deleted++;
+        } catch (e) {}
+    }
+    alert(`已删除 ${deleted} 个文件`);
+    loadRawList();
+    loadRawStats();
+}
+
+async function clearAllRaw() {
+    if (!confirm('⚠️ 确定要清空所有原始数据吗？此操作不可恢复！')) return;
+    if (!confirm('再次确认：清空后所有摄入的原始数据将被永久删除！')) return;
+
+    try {
+        const response = await fetch(`${API_BASE}/raw`, { method: 'DELETE' });
+        const data = await response.json();
+        if (response.ok) {
+            alert(data.message);
+            loadRawList();
+            loadRawStats();
+        }
+    } catch (error) {
+        alert('清空失败: ' + error.message);
+    }
+}
+
 // 初始化
 refreshWiki();
+loadRawStats();

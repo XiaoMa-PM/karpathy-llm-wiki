@@ -284,3 +284,60 @@ footer {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+/* 数据维护 */
+.stats-bar {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+}
+
+.stat-item {
+    font-size: 14px;
+    color: #aaa;
+}
+
+.raw-list {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.raw-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.raw-table th, .raw-table td {
+    text-align: left;
+    padding: 12px 8px;
+    border-bottom: 1px solid #333;
+}
+
+.raw-table th {
+    color: #00d4ff;
+    font-weight: normal;
+    font-size: 14px;
+}
+
+.raw-table tr:hover {
+    background: rgba(0, 212, 255, 0.05);
+}
+
+.small-btn {
+    padding: 5px 12px;
+    font-size: 12px;
+    background: #ff4444;
+}
+
+button.danger {
+    background: #ff4444;
+}
+
+button.danger:hover {
+    box-shadow: 0 5px 20px rgba(255, 68, 68, 0.3);
+}

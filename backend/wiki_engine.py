@@ -210,6 +210,88 @@ class WikiEngine:
 
         return results
 
+    # ============= Raw 数据维护 =============
+
+    def list_raw(self) -> list:
+        """列出所有原始数据文件"""
+        files = list(RAW_DIR.glob("*.md"))
+        result = []
+        for f in files:
+            try:
+                with open(f, 'r', encoding='utf-8') as fp:
+                    content = fp.read()
+                    # 提取标题（第一个 # 后面那段）
+                    title = f.stem
+                    for line in content.split('\n'):
+                        if line.startswith('# '):
+                            title = line[2:].strip()
+                            break
+                    # 提取来源 URL（如果有）
+                    url_match = re.search(r'来源.*?(https?://[^\s]+)', content)
+                    url = url_match.group(1) if url_match else None
+                    # 内容预览（前200字符）
+                    preview = content[:200].replace('\n', ' ').strip()
+
+                    result.append({
+                        "filename": f.name,
+                        "title": title,
+                        "size": f.stat().st_size,
+                        "url": url,
+                        "preview": preview + "..." if len(content) > 200 else preview
+                    })
+            except:
+                continue
+        return result
+
+    def delete_raw(self, filename: str) -> bool:
+        """删除指定原始数据文件"""
+        filepath = RAW_DIR / filename
+        if filepath.exists():
+            filepath.unlink()
+            return True
+        return False
+
+    def delete_all_raw(self) -> int:
+        """清空所有原始数据文件"""
+        files = list(RAW_DIR.glob("*.md"))
+        count = 0
+        for f in files:
+            try:
+                f.unlink()
+                count += 1
+            except:
+                continue
+        return count
+
+    def get_raw_stats(self) -> dict:
+        """获取原始数据统计"""
+        files = list(RAW_DIR.glob("*.md"))
+        total_size = sum(f.stat().st_size for f in files)
+        # 统计各平台数量
+        platforms = {"xiaohongshu": 0, "zhihu": 0, "weibo": 0, "bilibili": 0, "other": 0}
+        from scraper import detect_platform
+        for f in files:
+            try:
+                with open(f, 'r', encoding='utf-8') as fp:
+                    content = fp.read()
+                    url_match = re.search(r'来源.*?(https?://[^\s]+)', content)
+                    if url_match:
+                        p = detect_platform(url_match.group(1))
+                        if p in platforms:
+                            platforms[p] += 1
+                        else:
+                            platforms["other"] += 1
+                    else:
+                        platforms["other"] += 1
+            except:
+                platforms["other"] += 1
+
+        return {
+            "total_files": len(files),
+            "total_size": total_size,
+            "platforms": platforms
+        }
+
 
 # 全局实例
 _engine = None
